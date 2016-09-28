@@ -96,8 +96,16 @@ void printTree(struct nodeType *node, int ident) {
             printf("%sPROGRAM\n", blank);
             ident++;
             break;
+        case NODE_PROC_AND_FUNC_DECL:
+            printf("%sP&FUNC_DECL\n", blank);
+            ident++;
+            break;
         case NODE_VAR_DECL:
             printf("%sVAR_DECL\n", blank);
+            ident++;
+            break;
+        case NODE_CMP_STMT:
+            printf("%sCOMP_STMT\n", blank);
             ident++;
             break;
         case NODE_TYPE_INT:

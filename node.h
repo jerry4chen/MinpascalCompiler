@@ -15,11 +15,15 @@ struct nodeType;
 #define NODE_VAR_DECL       6
 #define NODE_TYPE_INT       7
 #define NODE_TYPE_REAL      8
-#define NODE_ASSIGN_STMT    9
-#define NODE_SYM_REF        10
+#define NODE_TYPE_STRING    9
+#define NODE_ASSIGN_STMT    10
+#define NODE_SYM_REF        11
 
 #define NODE_LIST           50
 
+#define NODE_STMT           96
+#define NODE_CMP_STMT       97
+#define NODE_PROC_AND_FUNC_DECL 98
 #define NODE_VAR_OR_PROC    99
 #define NODE_ERROR          100
 #define NODE_EMPTY          101

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "y.tab.h"
 #include "node.h"
-#define token(s) {printf("%s\n", yytext);return(s);}
+#define token(s) {printf("%s\n", yytext); return(s);}
 
 int line_no = 1;
 struct nodeType* newTokenNode(int tokenType);
@@ -39,54 +39,232 @@ NQUOTE [^']
 
 %%
 
-{I}{N}{T}{E}{G}{E}{R} token(INTEGER);
-{R}{E}{A}{L} token(REAL);
-{S}{T}{R}{I}{N}{G} token(STRING);
-{F}{U}{N}{C}{T}{I}{O}{N} token(FUNCTION);
-{O}{F}    token(OF);
-{N}{O}{T}   token(NOT);
-{A}{R}{R}{A}{Y}   token(ARRAY);
-{P}{R}{O}{G}{R}{A}{M}  token(PROGRAM);
-{P}{R}{O}{C}{E}{D}{U}{R}{E} token(PROCEDURE);
-{D}{O}    token(DO);
-{W}{H}{I}{L}{E}   token(WHILE);
-{B}{E}{G}{I}{N}   token(PBEGIN);
-{E}{N}{D}   token(END);
-{I}{F}    token(IF);
-{T}{H}{E}{N}   token(THEN);
-{E}{L}{S}{E}   token(ELSE);
-{V}{A}{R}   token(VAR);
-[a-zA-Z]([a-zA-Z0-9])*  token(IDENTIFIER);
+{I}{N}{T}{E}{G}{E}{R} {
+    yylval.node = newTokenNode(INTEGER);
+    token(INTEGER);
+}
 
-"!="    token(NOTEQUAL);
-":="    token(ASSIGNMENT);
-'({NQUOTE}|'')+'  token(CHARACTER_STRING); //FIXME
-":"    token(COLON);
-","    token(COMMA);
-([0-9]+|([0-9]*)([eE][-+]?[0-9]+)?) {          // yylval.dval = atof(yytext); 
-                                    token(NUM);}
-"."    token(DOT);
-".."    token(DOTDOT);
-"="    token(EQUAL);
-">="    token(GE);
-">"    token(GT);
-"["    token(LBRAC);
-"<="    token(LE);
-"("    token(LPAREN);
-"<"    token(LT);
-"-"    token(MINUS);
-"+"    token(PLUS);
-"]"    token(RBRAC);
-[0-9]+"."[0-9]+   token(REAL); //FIXME
-")"    token(RPAREN);
-";"    token(SEMICOLON);
-"/"    token(SLASH);
-"*"    token(STAR);
+{R}{E}{A}{L} {
+    yylval.node = newTokenNode(REAL);
+    token(REAL);
+}
+
+{S}{T}{R}{I}{N}{G} {
+    yylval.node = newTokenNode(STRING);
+    token(STRING);
+}
+
+{F}{U}{N}{C}{T}{I}{O}{N} {
+    yylval.node = newTokenNode(FUNCTION);
+    token(FUNCTION);
+}
+
+{O}{F} {
+    yylval.node = newTokenNode(OF);
+    token(OF);
+}
+
+{N}{O}{T} {
+    yylval.node = newTokenNode(NOT);
+    token(NOT);
+}
+
+{A}{R}{R}{A}{Y} {
+    yylval.node = newTokenNode(ARRAY);
+    token(ARRAY);
+}
+
+{P}{R}{O}{G}{R}{A}{M} {
+    yylval.node = newTokenNode(PROGRAM);
+    token(PROGRAM);
+}
+
+{P}{R}{O}{C}{E}{D}{U}{R}{E} {
+    yylval.node = newTokenNode(PROCEDURE);
+    token(PROCEDURE);
+}
+
+{D}{O} {
+    yylval.node = newTokenNode(DO);
+    token(DO);
+}
+
+{W}{H}{I}{L}{E} {
+    yylval.node = newTokenNode(WHILE);
+    token(WHILE);
+}
+
+{B}{E}{G}{I}{N} {
+    yylval.node = newTokenNode(PBEGIN);
+    token(PBEGIN);
+}
+
+{E}{N}{D} {
+    yylval.node = newTokenNode(END);
+    token(END);
+}
+
+{I}{F} {  
+    yylval.node = newTokenNode(IF);
+    token(IF);
+}
+
+{T}{H}{E}{N}   {
+    yylval.node = newTokenNode(THEN);
+    token(THEN);
+}
+
+{E}{L}{S}{E}   {
+    yylval.node = newTokenNode(ELSE);
+    token(ELSE);
+}
+
+{V}{A}{R}   {
+    yylval.node = newTokenNode(VAR);
+    token(VAR);
+}
+
+[a-zA-Z]([a-zA-Z0-9])*  {
+    yylval.node = newTokenNode(IDENTIFIER);
+    yylval.node->string = (char*)malloc(yyleng+1);
+    strcpy(yylval.node->string, yytext);
+    token(IDENTIFIER);
+}
+
+"!="    {
+    yylval.node = newTokenNode(NOTEQUAL);
+    yylval.node->op = OP_NE;
+    token(NOTEQUAL);
+}
+
+":="    {
+    yylval.node = newTokenNode(ASSIGNMENT);
+    token(ASSIGNMENT);
+}
+
+'({NQUOTE}|'')+'  {
+    yylval.node = newTokenNode(CHARACTER_STRING);
+    token(CHARACTER_STRING); 
+}
+
+":"    {
+    yylval.node = newTokenNode(COLON);
+    token(COLON);
+}
+","    {
+    yylval.node = newTokenNode(COMMA);
+    token(COMMA);
+}
+([0-9]+|([0-9]*)([eE][-+]?[0-9]+)?) {  
+    // yylval.dval = atof(yytext);                                 
+    yylval.node = newTokenNode(NUM);
+    yylval.node->valueValid = VALUE_I_VALID;
+    yylval.node->iValue = atoi(yytext);
+    token(NUM);
+}
+
+[0-9]+"."[0-9]+   {
+    yylval.node = newTokenNode(REAL);
+    yylval.node->valueValid = VALUE_R_VALID;
+    yylval.node->rValue = atof(yytext);
+    token(REAL);
+}
+
+"."    {
+    yylval.node = newTokenNode(DOT);
+    token(DOT);
+}
+
+".."    {
+    yylval.node = newTokenNode(DOTDOT);
+    token(DOTDOT);
+}
+
+"="    {
+    yylval.node = newTokenNode(EQUAL);
+    yylval.node->op = OP_EQ;
+    token(EQUAL);
+}
+
+">="    {
+    yylval.node = newTokenNode(GE);
+    yylval.node->op = OP_GE;
+    token(GE);
+}
+
+">"    {
+    yylval.node = newTokenNode(GT);
+    yylval.node->op = OP_GT;
+    token(GT);
+}
+
+"["    {
+    yylval.node = newTokenNode(LBRAC);
+    token(LBRAC);
+}
+
+"<="    {
+    yylval.node = newTokenNode(LE);
+    yylval.node->op = OP_LE;
+    token(LE);
+}
+
+"("    {
+    yylval.node = newTokenNode(LPAREN);
+    token(LPAREN);
+}
+
+"<"    {
+    yylval.node = newTokenNode(LT);
+    yylval.node->op = OP_LT;
+    token(LT);
+}
+
+"-"    {
+    yylval.node = newTokenNode(MINUS);
+    yylval.node->op = OP_SUB;
+    token(MINUS);
+}
+
+"+"    {
+    yylval.node = newTokenNode(PLUS);
+    yylval.node->op = OP_ADD;
+    token(PLUS);
+}
+
+"]"    {
+    yylval.node = newTokenNode(RBRAC);
+    token(RBRAC);
+}
+ 
+")"    {
+    yylval.node = newTokenNode(RPAREN);
+    token(RPAREN);
+}
+
+";"    {
+    yylval.node = newTokenNode(SEMICOLON);
+    token(SEMICOLON);
+}
+
+"/"    {
+    yylval.node = newTokenNode(SLASH);
+    yylval.node->op = OP_DIV;
+    token(SLASH);
+}
+
+"*"    {
+    yylval.node = newTokenNode(STAR);
+    yylval.node->op = OP_MUL;
+    token(STAR);
+}
+
 "//".*"\n"  {                           //string value
     printf("%d: %s", line_no++, yytext);
 }
-[ \t\f]    ;
 
+[\t\f]    ;
+[ ] ;
 \n    line_no++;
 
 
