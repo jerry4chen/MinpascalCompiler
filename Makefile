@@ -1,6 +1,9 @@
 all : lex yacc lex.yy.o node.o symtab.o	
 	gcc -o minipascal y.tab.o node.o symtab.o -ll -ly
 
+debug : lex yacc lex.yy.o node.o symtab.o	
+	gcc -o minipascal y.tab.o node.o symtab.o -ll -ly -g
+
 symtab.o : symtab.c
 	gcc -c symtab.c
 

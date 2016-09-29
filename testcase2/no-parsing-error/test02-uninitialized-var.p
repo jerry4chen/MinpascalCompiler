@@ -7,8 +7,7 @@ PROGRAM foo(input, output, error) ;
    // multi-dimensional array
    var g: array [ 23 .. 57 ] of array [ 23 .. 57 ] of array [ 23 .. 57 ] of array [ 23 .. 57 ] of array [ 23 .. 57 ] of real; 
  
-   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real; 
-
+   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;
    begin
       a := a + 1;  // un-initialized variable
                    // Can your compiler find this error?

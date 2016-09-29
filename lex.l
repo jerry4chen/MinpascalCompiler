@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "y.tab.h"
 #include "node.h"
-#define token(s) {printf("%s\n", yytext); return(s);}
+#define token(s) {/*printf("%s\n", yytext); */return(s);}
 
 int line_no = 1;
 struct nodeType* newTokenNode(int tokenType);
@@ -167,7 +167,7 @@ NQUOTE [^']
     yylval.node = newTokenNode(REAL);
     yylval.node->valueValid = VALUE_R_VALID;
     yylval.node->rValue = atof(yytext);
-    token(REAL);
+    token(REALNUMBER);
 }
 
 "."    {

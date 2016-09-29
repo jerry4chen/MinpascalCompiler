@@ -182,7 +182,10 @@ arguments : LPAREN parameter_list RPAREN
 {
 check("argumentsend");
 }
-    |  
+    |
+{
+    $$ = newNode(NODE_EMPTY);
+}
     ;
 
 parameter_list : optional_var identifier_list COLON type 
@@ -201,6 +204,10 @@ optional_var : VAR
     //deleteNode($1);
 }
     |
+{
+
+    $$ = newNode(NODE_EMPTY);
+}
     ;
 
 /*statement and expressions goes*/
@@ -243,7 +250,13 @@ statement_list : statement
 
 statement : variable ASSIGNMENT expression
 {
-    printf("\tstmt VAR ASSGINMENT\n");
+    $$ = newNode(NODE_ASSIGN_STMT);
+    addChild($$, $1);
+    addChild($$, $3);
+    $1->nodeType = NODE_SYM_REF;
+    deleteNode($2);
+
+    //printf("\tstmt VAR ASSGINMENT\n");
     //deleteNode($2);
 
 }
@@ -276,7 +289,7 @@ statement : variable ASSIGNMENT expression
 
 variable : IDENTIFIER tail
 {
-    
+        
 }
     ;
 tail : LBRAC expression RBRAC tail 
@@ -286,6 +299,10 @@ tail : LBRAC expression RBRAC tail
 
 }
     |
+{
+
+    $$ = newNode(NODE_EMPTY);
+}
     ;
 
 procedure_statement : IDENTIFIER
@@ -304,26 +321,27 @@ procedure_statement : IDENTIFIER
 
 expression_list : expression
 {
-
+    $$ = newNode(NODE_LIST);
+    addChild($$, $1);
 }
     | expression_list COMMA expression
 {
-    //deleteNode($2);
-
+    $$ = $1;
+    addChild($$, $3);
+    deleteNode($2);
 }
     ;
 
 expression : simple_expression
 {
-
-    //deleteNode($1);
+    $$ = newNode(NODE_LIST);
+    addChild($$, $1);
 }
     | simple_expression relop simple_expression
 {
-    //deleteNode($1);
-    //deleteNode($2);
-    //deleteNode($3);
-
+    $$ = $2;
+    addChild($$, $1);
+    addChild($$, $3);
 }
     ;
 
@@ -347,105 +365,117 @@ term : factor
 }
     | term mulop factor
 {
-
+    $$ = newNode(NODE_OP);
+    $$->op = $2->op;
+    addChild($$, $1);
+    addChild($$, $3);
 }
     ;
 
 factor : IDENTIFIER tail
 {
     //deleteNode($1);
-    $$ = newNode(NODE_VAR_OR_PROC);
 }
     | IDENTIFIER LPAREN expression_list RPAREN
 {
-    //deleteNode($1);
-    //deleteNode($2);
-    //deleteNode($4);
+    
+    deleteNode($2);
+    deleteNode($4);
 
+}
+    | REALNUMBER
+{
+    $1->nodeType = NODE_REAL;
+    $$ = $1;
+
+}
+    | MINUS REALNUMBER %prec UMINUS
+{   
+ //   $2->rValue = -($2->rValue);
+    $2->nodeType = NODE_REAL;
+    $$ = $2;
+    deleteNode($1);
 }
     | NUM
 {
+    $$ = $1; 
     //deleteNode($1);
 
 }
     | MINUS NUM %prec UMINUS
 {
+    $2->iValue = -($2->iValue);
+    $$ = $2;
+    deleteNode($1);
     //deleteNode($1);
     //deleteNode($2);
 
 }
     | LPAREN expression RPAREN
 {
-    //deleteNode($1);
-    //deleteNode($3);
+    $$ = $2;
+    deleteNode($1);
+    deleteNode($3);
 
 }
     | NOT factor
 {
+    
     //deleteNode($1);
 }
     ;
 
 addop : PLUS 
 {
-    $$ = $1;
-
-    //deleteNode($1);
+    $$ = newOpNode(OP_ADD);
+    deleteNode($1);
 }
 | MINUS 
 {
-    $$ = $1;
-
-    //deleteNode($1);
+    $$ = newOpNode(OP_SUB);
+    deleteNode($1);
 }
 ;
 mulop : STAR 
 {
-    $$ = $1;
-    //deleteNode($1);
-
+    $$ = newOpNode(OP_MUL);
+    deleteNode($1);
 }
 | SLASH 
 {
-    $$ = $1;
-    //deleteNode($1);
-
+    $$ = newOpNode(OP_DIV);
+    deleteNode($1);
 }
 ;
 relop : LT 
 {
-    $$ = $1;
-    //deleteNode($1);
-
+    $$ = newOpNode(OP_LT);
+    deleteNode($1);
 }
 | GT 
 {
-    $$ = $1;
-    //deleteNode($1);
-
+    $$ = newOpNode(OP_GT);
+    deleteNode($1);
 }
 | EQUAL 
 {
-    $$ = $1;
-    //deleteNode($1);
-
+    $$ = newOpNode(OP_EQ);
+    deleteNode($1);
 }
 | LE 
 {
-
-    $$ = $1;
-    //deleteNode($1);
+    $$ = newOpNode(OP_LE);
+    deleteNode($1);
 }
 | GE 
 {
-    $$ = $1;
-    //deleteNode($1);
-
+    $$ = newOpNode(OP_GE);
+    deleteNode($1);
 }
 | NOTEQUAL 
 {
-    //deleteNode($1);
-    $$ = $1;
+    $$ = newOpNode(OP_NE);
+    deleteNode($1);
 }
 ;
 
