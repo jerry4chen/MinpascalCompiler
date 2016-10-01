@@ -50,7 +50,7 @@ struct symtab{
 %start goal
 
 %%
-goal : program {
+goal :  program {
         ASTRoot = $1;
 }
     ;
@@ -86,7 +86,7 @@ identifier_list :  identifier_list COMMA IDENTIFIER
     {
         $$ = $1;
         addChild($$, $3);
-        //deleteNode($2);
+        deleteNode($2);
     }
     
     |   IDENTIFIER
@@ -102,7 +102,9 @@ declarations : declarations VAR identifier_list COLON type SEMICOLON
         $$ = $1;
         addChild($$, $3);
         addChild($$, $5);
-    
+        deleteNode($2); 
+        deleteNode($4); 
+        deleteNode($6); 
     }
     |   
     {
@@ -116,11 +118,13 @@ type : standard_type
 }
     |   ARRAY LBRAC NUM DOTDOT NUM RBRAC OF type
 {
-        $$ = $1;
-        addChild($$,$3);
-        addChild($$,$5);
-        addChild($$,$8);
-        deleteNode($1);
+        $$ = $8;
+        $3->nodeType = NODE_INT;
+        $5->nodeType = NODE_INT;
+        $1->nodeType = NODE_ARR;
+        addChild($1,$3);
+        addChild($1,$5);
+        addChild($8,$1);
         deleteNode($2);
         deleteNode($4);
         deleteNode($6);
@@ -148,14 +152,13 @@ standard_type : INTEGER
 procedure_and_function_declaration_part : 
     procedure_and_function_declaration_part subprogram_declaration SEMICOLON
 {
-        $$ = newNode(NODE_PROC_AND_FUNC_DECL);
-        addChild($$, $1);
-        addChild($$, $2);
-        deleteNode($3);
+    $$ = $1;
+    addChild($$, $2);
+    deleteNode($3);
 }
     |
 {
-    $$ = newNode(NODE_EMPTY);
+    $$ = newNode(NODE_PROC_AND_FUNC_DECL);
 }
     ;
 
@@ -164,23 +167,39 @@ subprogram_declaration :
     declarations
     compound_statement 
     {
-        $$ = newNode(NODE_VAR_OR_PROC);
+        $$ = $1;
     }
     ;
 
 subprogram_head : FUNCTION IDENTIFIER arguments COLON standard_type SEMICOLON 
 {
-check("subprogram_head");
+    $$ = newNode(NODE_FUNC);
+    addChild($$, $2);
+    addChild($$, $5);
+    addChild($2, $3);
+    deleteNode($1);
+    deleteNode($4);
+    deleteNode($6);
+    // TODO
+    // add to symboltable
 }
     | PROCEDURE IDENTIFIER arguments SEMICOLON 
     {
-    check("subprogram_head2 end");
+        $$ = newNode(NODE_PROC);
+        addChild($$, $2);
+        addChild($2, $3);
+        deleteNode($1);
+        deleteNode($4);
+        // TODO
+        // add to symboltable
     }
     ;
 
 arguments : LPAREN parameter_list RPAREN 
 {
-check("argumentsend");
+    $$ = $2;
+    deleteNode($1);
+    deleteNode($3);
 }
     |
 {
@@ -190,22 +209,29 @@ check("argumentsend");
 
 parameter_list : optional_var identifier_list COLON type 
 {
-check("paramlist1");
+    $$ = newNode(NODE_PLIST);
+    addChild($$, $2);
+    addChild($$, $4);
+    deleteNode($1);
+    deleteNode($3);
 }
     | optional_var identifier_list COLON type SEMICOLON parameter_list 
 {
-check("paramlist2");
+    $$ = $6;
+    addChild($$, $2);
+    addChild($$, $4);
+    deleteNode($1);
+    deleteNode($3);
+    deleteNode($5);
 }
     ;
 
 optional_var : VAR 
 {
-
-    //deleteNode($1);
+    $$ = $1;
 }
     |
 {
-
     $$ = newNode(NODE_EMPTY);
 }
     ;
@@ -223,27 +249,23 @@ compound_statement : PBEGIN optional_statements END
 
 optional_statements : statement_list
 {
-    $$ = newNode(NODE_CMP_STMT);
-    printf("\topt stlist\n");
+    $$ = $1;
 }
     |
 {
-    $$ = newNode(NODE_CMP_STMT);
-    printf("\topt lamba\n");
+    $$ = newNode(NODE_EMPTY);
 }
     ;
 
 statement_list : statement
 {
     $$ = $1;
-    printf("\tstlist stmt\n");
     
 }
     |   statement_list SEMICOLON statement
 {
-    $$ = newNode(NODE_LIST);
-    addChild($$, $1);
-    addChild($$, $3);
+    addChild($1, $3);
+    $$ = $1;
     printf("\tstlist semicolon\n");
 }
     ;
@@ -254,54 +276,46 @@ statement : variable ASSIGNMENT expression
     addChild($$, $1);
     addChild($$, $3);
     $1->nodeType = NODE_SYM_REF;
-    deleteNode($2);
-
-    //printf("\tstmt VAR ASSGINMENT\n");
-    //deleteNode($2);
-
+    deleteNode($2); 
 }
     | procedure_statement
 {
-    printf("\tstmt procedureSTMT\n");
 
 }
     | compound_statement
 {
-    printf("\tstmt COMPSTMT\n");
 
 }
     | IF expression THEN statement ELSE statement
 {
-    printf("\tstmt IFELSE\n");
 
 }
     | WHILE expression DO statement
 {
 
-    printf("\tstmt VAR ASSGINMENT\n");
 }
     |
 {
-    printf("\tstmt lambda\n");
     $$ = newNode(NODE_EMPTY);
 }
     ;
 
 variable : IDENTIFIER tail
 {
-        
+    $$ = $1;       
+    addChild($$, $2);
 }
     ;
-tail : LBRAC expression RBRAC tail 
+tail : LBRAC simple_expression RBRAC tail 
 {
-    //deleteNode($1);
-    //deleteNode($3);
-
+    $$ = $4;
+    addChild($$, $2);
+    deleteNode($1);
+    deleteNode($3);
 }
     |
 {
-
-    $$ = newNode(NODE_EMPTY);
+    $$ = newNode(NODE_TAIL);
 }
     ;
 
@@ -334,8 +348,7 @@ expression_list : expression
 
 expression : simple_expression
 {
-    $$ = newNode(NODE_LIST);
-    addChild($$, $1);
+    $$=$1;
 }
     | simple_expression relop simple_expression
 {
@@ -347,15 +360,13 @@ expression : simple_expression
 
 simple_expression : term
 {
-    $$ = newNode(NODE_EMPTY);
+    $$ = $1;
 
 }
     | simple_expression addop term
 {
     $$ = newNode(NODE_OP);
-    addChild($$, $1);
-    addChild($$, $2);
-    addChild($$, $3);
+   // addChild($$, $1);
 }
     ;
 
@@ -368,60 +379,58 @@ term : factor
     $$ = newNode(NODE_OP);
     $$->op = $2->op;
     addChild($$, $1);
-    addChild($$, $3);
+    //addChild($$, $3);
 }
     ;
 
 factor : IDENTIFIER tail
 {
-    //deleteNode($1);
+    $$ = $1;
+    addChild($$, $2);
 }
     | IDENTIFIER LPAREN expression_list RPAREN
 {
-    
+    $$ = $1;
+    addChild($$, $2);
     deleteNode($2);
     deleteNode($4);
 
 }
     | REALNUMBER
 {
-    $1->nodeType = NODE_REAL;
+    $$ = $1;
+    $$->nodeType = NODE_REAL;
     $$ = $1;
 
 }
     | MINUS REALNUMBER %prec UMINUS
 {   
- //   $2->rValue = -($2->rValue);
-    $2->nodeType = NODE_REAL;
     $$ = $2;
+    $$->nodeType = NODE_REAL;
+    $$->rValue = -($$->rValue);
     deleteNode($1);
 }
     | NUM
 {
     $$ = $1; 
-    //deleteNode($1);
-
+    $$->nodeType = NODE_INT;
 }
     | MINUS NUM %prec UMINUS
 {
-    $2->iValue = -($2->iValue);
     $$ = $2;
+    $$->iValue = -($$->iValue);
+    $$->nodeType = NODE_INT;
     deleteNode($1);
-    //deleteNode($1);
-    //deleteNode($2);
-
 }
     | LPAREN expression RPAREN
 {
     $$ = $2;
     deleteNode($1);
     deleteNode($3);
-
 }
     | NOT factor
 {
-    
-    //deleteNode($1);
+    $$ = newNode(NODE_ERROR);
 }
     ;
 

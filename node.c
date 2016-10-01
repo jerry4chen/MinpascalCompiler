@@ -89,11 +89,38 @@ void printTree(struct nodeType *node, int ident) {
             break;
         case NODE_VAR_OR_PROC:
             printf("%s%s\n", blank, node->string);
+        break;
+        case NODE_TAIL:
+            //printf("%sTAIL\n", blank);
+            ident++;
+            break;
+        case NODE_PLIST:
+            ident++;
             break;
         case NODE_LIST:
             break;
+        case NODE_ERROR:
+            printf("%sERROR\n", blank);
+            break;
+        case NODE_ARR:
+        case NODE_ARR_REF:
+            printf("%sARRAY\n", blank);
+            ident++;
+            break;
         case NODE_PROGRAM:
             printf("%sPROGRAM\n", blank);
+            ident++;
+            break;
+        case NODE_SUB_HEAD:
+            printf("%sHEAD\n", blank);
+            ident++;
+            break;
+        case NODE_FUNC:
+            printf("%sFUNC\n", blank);
+            ident++;
+            break;
+        case NODE_PROC:
+            printf("%sPROC\n", blank);
             ident++;
             break;
         case NODE_PROC_AND_FUNC_DECL:
@@ -110,9 +137,11 @@ void printTree(struct nodeType *node, int ident) {
             break;
         case NODE_TYPE_INT:
             printf("%sTYPE_INT\n", blank);
+            ident++;
             break;
         case NODE_TYPE_REAL:
             printf("%sTYPE_REAL\n", blank);
+            ident++;
             break;
         case NODE_ASSIGN_STMT:
             printf("%sASSIGN_STMT\n", blank);

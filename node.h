@@ -18,9 +18,18 @@ struct nodeType;
 #define NODE_TYPE_STRING    9
 #define NODE_ASSIGN_STMT    10
 #define NODE_SYM_REF        11
+#define NODE_ARR            12
+#define NODE_ARR_REF        13
+#define NODE_TAIL           14
+
+#define NODE_SUB_HEAD       15
+#define NODE_SUB_DEC        16
 
 #define NODE_LIST           50
+#define NODE_PLIST           51
 
+#define NODE_FUNC           94
+#define NODE_PROC           95
 #define NODE_STMT           96
 #define NODE_CMP_STMT       97
 #define NODE_PROC_AND_FUNC_DECL 98
