@@ -1,0 +1,10 @@
+*.o
+*.swp
+lex.yy.c
+y.tab.c
+y.tab.h
+a.out
+minipascal
+Symtab
+minipascal_ASTmiddle
+minipascal_parseOK
