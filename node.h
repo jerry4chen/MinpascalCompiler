@@ -27,6 +27,10 @@ struct nodeType;
 
 #define NODE_LIST           50
 #define NODE_PLIST           51
+#define NODE_IFSTMT         52
+#define NODE_WHILE          53
+#define NODE_CALLPROC          54
+
 
 #define NODE_FUNC           94
 #define NODE_PROC           95

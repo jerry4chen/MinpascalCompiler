@@ -259,14 +259,14 @@ optional_statements : statement_list
 
 statement_list : statement
 {
-    $$ = $1;
+    $$ = newNode(NODE_LIST);
+    addChild($$, $1);
     
 }
     |   statement_list SEMICOLON statement
 {
     addChild($1, $3);
     $$ = $1;
-    printf("\tstlist semicolon\n");
 }
     ;
 
@@ -280,19 +280,29 @@ statement : variable ASSIGNMENT expression
 }
     | procedure_statement
 {
-
+    $$ = $1;
 }
     | compound_statement
 {
-
+    $$ = $1;
 }
     | IF expression THEN statement ELSE statement
 {
-
+    $$ = newNode(NODE_IFSTMT);
+    addChild($$, $2);
+    addChild($$, $4);
+    addChild($$, $6);
+    deleteNode($1);
+    deleteNode($3);
+    deleteNode($5);
 }
     | WHILE expression DO statement
 {
-
+    $$ = newNode(NODE_WHILE);
+    addChild($$, $2);
+    addChild($$, $4);
+    deleteNode($1);
+    deleteNode($3);
 }
     |
 {
@@ -322,14 +332,16 @@ tail : LBRAC simple_expression RBRAC tail
 procedure_statement : IDENTIFIER
 {
     //deleteNode($1);
-
+    $$ = $1;
+    $$->nodeType = NODE_VAR_OR_PROC;
 }
     | IDENTIFIER LPAREN expression_list RPAREN
 {
-    //deleteNode($1);
-    //deleteNode($2);
-    //deleteNode($4);
-
+    $$ = $1;
+    $$ -> nodeType = NODE_CALLPROC;
+    addChild($$, $3);
+    deleteNode($2);
+    deleteNode($4);
 }
     ;
 
@@ -361,12 +373,12 @@ expression : simple_expression
 simple_expression : term
 {
     $$ = $1;
-
 }
     | simple_expression addop term
 {
-    $$ = newNode(NODE_OP);
-   // addChild($$, $1);
+    $$ = $2;
+    addChild($$, $1);
+    addChild($$, $3);
 }
     ;
 
@@ -379,7 +391,7 @@ term : factor
     $$ = newNode(NODE_OP);
     $$->op = $2->op;
     addChild($$, $1);
-    //addChild($$, $3);
+    addChild($$, $3);
 }
     ;
 
@@ -391,16 +403,14 @@ factor : IDENTIFIER tail
     | IDENTIFIER LPAREN expression_list RPAREN
 {
     $$ = $1;
-    addChild($$, $2);
+    addChild($$, $3);
     deleteNode($2);
     deleteNode($4);
-
 }
     | REALNUMBER
 {
     $$ = $1;
     $$->nodeType = NODE_REAL;
-    $$ = $1;
 
 }
     | MINUS REALNUMBER %prec UMINUS

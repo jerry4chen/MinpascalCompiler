@@ -16,8 +16,9 @@ lex : lex.l
 yacc : yacc.y
 	yacc -d yacc.y
 	gcc -c y.tab.c -o y.tab.o
-
-#
+run : 
+	./minipascal < testcase2/no-parsing-error/test02-uninitialized-var.p
+	#
 #lex scan.l \
 #&& yacc -d parse.y \
 #&& gcc -c -o lex.yy.o lex.yy.c \
