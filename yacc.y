@@ -97,11 +97,18 @@ identifier_list :  identifier_list COMMA IDENTIFIER
     }
     ;
 
-declarations : declarations VAR identifier_list COLON type SEMICOLON
+declarations : declarations VAR identifier_list COLON type SEMICOLON 
     {
+        //$$ = $4;
+        //addChild($$, $2);
+        //addChild($$, $6);
+        //deleteNode($1); 
+        //deleteNode($3); 
+        //deleteNode($5); 
+
         $$ = $1;
-        addChild($$, $3);
         addChild($$, $5);
+        addChild($5, $3);
         deleteNode($2); 
         deleteNode($4); 
         deleteNode($6); 
@@ -118,13 +125,13 @@ type : standard_type
 }
     |   ARRAY LBRAC NUM DOTDOT NUM RBRAC OF type
 {
-        $$ = $8;
+        $$ = $1;
+        $$->nodeType = NODE_ARR;
         $3->nodeType = NODE_INT;
         $5->nodeType = NODE_INT;
-        $1->nodeType = NODE_ARR;
-        addChild($1,$3);
-        addChild($1,$5);
-        addChild($8,$1);
+        addChild($$,$3);
+        addChild($$,$5);
+        addChild($$,$8);
         deleteNode($2);
         deleteNode($4);
         deleteNode($6);
