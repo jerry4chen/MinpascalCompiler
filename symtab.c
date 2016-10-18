@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define help(s) {printf("\thelp: %s\n",s);}
 struct SymTable SymbolTable;
 
 struct SymTableEntry* findSymbol(char *s) {
@@ -39,17 +39,26 @@ struct nodeType* nthChild(int n, struct nodeType *node) {
 }
 
 void semanticCheck(struct nodeType *node) {
+    help("count");
     switch(node->nodeType) {
         case NODE_VAR_DECL: {
             /* We only implement integer and real type here,
                you should implement array type by yourself */
             struct nodeType *typeNode = nthChild(2, node);
             enum StdType valueType;
-            if(typeNode->nodeType == NODE_TYPE_INT)
+            switch(typeNode->nodeType){
+            case NODE_TYPE_INT:
+            //    help("NODE_TYPE_INT");
                 valueType = TypeInt;
-            else
+                break;
+            case NODE_TYPE_REAL:
                 valueType = TypeReal;
-
+ //               help("NODE_TYPE_REAL");
+                break;
+            case NODE_ARR:
+   //             help("NODE_ARR");
+                break;
+            }
             struct nodeType *idList = nthChild(1, node);
             struct nodeType *idNode = idList->child;
             do {

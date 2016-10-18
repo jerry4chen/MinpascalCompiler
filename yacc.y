@@ -525,8 +525,11 @@ int main() {
            "*       No syntax error!       *\n"
            "********************************\n");
     printTree(ASTRoot, 0);
-    //SymbolTable.size = 0;
-    //semanticCheck(ASTRoot);
+    printf("********************************\n"
+           "*       Start Semantic !       *\n"
+           "********************************\n");
+    SymbolTable.size = 0;
+    semanticCheck(ASTRoot);
     printf("********************************\n"
            "*      No semantic error!      *\n"
            "********************************\n");

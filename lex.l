@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "y.tab.h"
 #include "node.h"
-#define token(s) {/*printf("%s\n", yytext); */return(s);}
+#define token(s) {printf("\ttoken:%d, %s\n",s, yytext); return(s);}
 
 int line_no = 1;
 struct nodeType* newTokenNode(int tokenType);
