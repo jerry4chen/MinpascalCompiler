@@ -45,6 +45,7 @@ void printTree(struct nodeType *node, int ident) {
     switch(node->nodeType) {
         case NODE_TOKEN:
             printf("%sToken %s\n", blank, node->string);
+            ident++;
             break;
         case NODE_OP:
             switch(node->op) {
@@ -95,13 +96,16 @@ void printTree(struct nodeType *node, int ident) {
             ident++;
             break; 
         case NODE_TAIL:
-            //printf("%sTAIL\n", blank);
+            printf("%sTAIL\n", blank);
             ident++;
             break;
         case NODE_PLIST:
+            printf("%sPLIST\n", blank);
             ident++;
             break;
         case NODE_LIST:
+            printf("%sLIST\n", blank);
+            ident++;
             break;
         case NODE_WHILE:
             printf("%sWHILE\n", blank);
@@ -114,9 +118,12 @@ void printTree(struct nodeType *node, int ident) {
         case NODE_ERROR:
             printf("%sERROR\n", blank);
             break;
-        case NODE_ARR:
-        case NODE_ARR_REF:
+        case NODE_TYPE_ARRAY:
             printf("%sARRAY\n", blank);
+            ident++;
+            break;
+        case NODE_ARR_REF:
+            printf("%sARRAY_REF\n", blank);
             ident++;
             break;
         case NODE_PROGRAM:
@@ -161,7 +168,11 @@ void printTree(struct nodeType *node, int ident) {
             break;
         case NODE_SYM_REF:
             printf("%sSYM_REF %s\n", blank, node->string);
+            ident++;
             break;
+        default:
+            printf("%sdefault:%d\n", blank, node->nodeType);
+          break;
     }
 
     struct nodeType *child = node->child;

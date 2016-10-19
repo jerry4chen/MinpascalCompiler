@@ -92,6 +92,7 @@ identifier_list :  identifier_list COMMA IDENTIFIER
     |   IDENTIFIER
     {
         $$ = newNode(NODE_LIST);
+        printf("%s\n",$1->string);
         addChild($$, $1);
         
     }
@@ -107,8 +108,8 @@ declarations : declarations VAR identifier_list COLON type SEMICOLON
         //deleteNode($5); 
 
         $$ = $1;
-        addChild($$, $5);
         addChild($5, $3);
+        addChild($$, $5);
         deleteNode($2); 
         deleteNode($4); 
         deleteNode($6); 
@@ -126,7 +127,7 @@ type : standard_type
     |   ARRAY LBRAC NUM DOTDOT NUM RBRAC OF type
 {
         $$ = $1;
-        $$->nodeType = NODE_ARR;
+        $$->nodeType = NODE_TYPE_ARRAY;
         $3->nodeType = NODE_INT;
         $5->nodeType = NODE_INT;
         addChild($$,$3);
@@ -282,7 +283,8 @@ statement : variable ASSIGNMENT expression
     $$ = newNode(NODE_ASSIGN_STMT);
     addChild($$, $1);
     addChild($$, $3);
-    $1->nodeType = NODE_SYM_REF;
+    if($1->nodeType != NODE_ARR_REF)
+        $1->nodeType = NODE_SYM_REF;
     deleteNode($2); 
 }
     | procedure_statement
@@ -319,14 +321,24 @@ statement : variable ASSIGNMENT expression
 
 variable : IDENTIFIER tail
 {
-    $$ = $1;       
-    addChild($$, $2);
+    if($2->nodeType == NODE_TAIL)
+        $$ = $1;       
+    else{
+        $$=$2;
+        addChild($$,$1);
+    }
+        
+    
 }
     ;
 tail : LBRAC simple_expression RBRAC tail 
 {
+    if($4->nodeType == NODE_TAIL)
+        $4->nodeType = NODE_ARR_REF;
     $$ = $4;
-    addChild($$, $2);
+    struct typeNode * ref = newNode(NODE_ARR_REF);
+    addChild(ref, $2);
+    addChild($$, ref);
     deleteNode($1);
     deleteNode($3);
 }

@@ -18,7 +18,7 @@ struct nodeType;
 #define NODE_TYPE_STRING    9
 #define NODE_ASSIGN_STMT    10
 #define NODE_SYM_REF        11
-#define NODE_ARR            12
+#define NODE_TYPE_ARRAY     12
 #define NODE_ARR_REF        13
 #define NODE_TAIL           14
 
@@ -26,7 +26,7 @@ struct nodeType;
 #define NODE_SUB_DEC        16
 
 #define NODE_LIST           50
-#define NODE_PLIST           51
+#define NODE_PLIST          51
 #define NODE_IFSTMT         52
 #define NODE_WHILE          53
 #define NODE_CALLPROC          54
@@ -64,12 +64,19 @@ struct nodeType {
     /* Attribute for NODE_TOKEN */
     int tokenType;
 
+    /* Indexes for Array */
+    int idxstart;
+    int idxend;
+    int idxref;
+    struct nodeType *ref;
+
+    /* Values for general use */
     int iValue;
     double rValue;
     char valueValid;
-
     char *string;
-
+    
+    /* Indicates which OP */
     char op;
 
     enum StdType valueType;

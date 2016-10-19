@@ -1,11 +1,15 @@
 #ifndef __SYMTAB_H___
 #define __SYMTAB_H___
 
-enum StdType {TypeInt, TypeReal};
+#include "node.h"
+void semanticCheck(struct nodeType* node);
+
+enum StdType {TypeInt, TypeReal, TypeArray};
 
 struct SymTableEntry {
     char name[100];
     enum StdType type;
+    struct nodeType *link;
 };
 
 struct SymTable {
@@ -15,8 +19,6 @@ struct SymTable {
 
 extern struct SymTable SymbolTable;
 
-#include "node.h"
-void semanticCheck(struct nodeType* node);
 
 #endif
 

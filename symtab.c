@@ -1,4 +1,4 @@
-#include "symtab.h"
+#include "node.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +15,8 @@ struct SymTableEntry* findSymbol(char *s) {
     return 0;
 }
 
-struct SymTableEntry* addVariable(char *s, enum StdType type) {
+struct SymTableEntry* addVariable(char *s, enum StdType type, struct nodeType* link) {
+    printf("s:%s, Type:%d\n",s, type);
     if(findSymbol(s) != 0) {
         printf("Error: duplicate declaration of variable %s\n", s);
         exit(0);
@@ -26,6 +27,7 @@ struct SymTableEntry* addVariable(char *s, enum StdType type) {
 
     strcpy(SymbolTable.entries[index].name, s);
     SymbolTable.entries[index].type = type;
+    SymbolTable.entries[index].link = link;
     
     return &SymbolTable.entries[index];
 }
@@ -39,33 +41,46 @@ struct nodeType* nthChild(int n, struct nodeType *node) {
 }
 
 void semanticCheck(struct nodeType *node) {
-    help("count");
+    printf("nodetype:%d\n", node->nodeType);
     switch(node->nodeType) {
+
+        // Declaration part, add to symbol table.
         case NODE_VAR_DECL: {
-            /* We only implement integer and real type here,
-               you should implement array type by yourself */
-            struct nodeType *typeNode = nthChild(2, node);
+            // TODO loop inside the rsibling of NODE_VAR_DECL.
+
+            struct nodeType *typeNode = nthChild(1, node);
             enum StdType valueType;
-            switch(typeNode->nodeType){
-            case NODE_TYPE_INT:
-            //    help("NODE_TYPE_INT");
+            
+            do{
+              switch(typeNode->nodeType){
+              case NODE_TYPE_INT:
                 valueType = TypeInt;
                 break;
-            case NODE_TYPE_REAL:
+              case NODE_TYPE_REAL:
                 valueType = TypeReal;
- //               help("NODE_TYPE_REAL");
                 break;
-            case NODE_ARR:
-   //             help("NODE_ARR");
+              case NODE_TYPE_ARRAY:
+                valueType = TypeArray;
                 break;
-            }
-            struct nodeType *idList = nthChild(1, node);
-            struct nodeType *idNode = idList->child;
-            do {
-                addVariable(idNode->string, valueType);
-                idNode = idNode->rsibling;
-            } while(idNode != idList->child);
+              }
 
+              struct nodeType *idList = nthChild(1, typeNode);
+              struct nodeType *idNode = idList->child;
+              if(valueType == TypeArray){
+                while(idList->nodeType != NODE_LIST){
+                  idList = idList->rsibling;
+                }
+                idNode = idList->child;
+              }
+
+              do {
+                addVariable(idNode->string, valueType, typeNode);
+                idNode = idNode->rsibling;
+              } while(idNode != idList->child);
+
+              typeNode = typeNode -> rsibling;
+
+            }while(typeNode != node->child);
             return;
         }
 
@@ -84,7 +99,11 @@ void semanticCheck(struct nodeType *node) {
 
             return;
         }
-
+        
+        case NODE_TYPE_ARRAY: {
+            node->valueType = TypeArray;
+            return;
+        }
         case NODE_INT: {
             node->valueType = TypeInt;
             return;
