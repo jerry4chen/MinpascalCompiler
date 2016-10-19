@@ -322,25 +322,35 @@ statement : variable ASSIGNMENT expression
 variable : IDENTIFIER tail
 {
     if($2->nodeType == NODE_TAIL)
-        $$ = $1;       
+        {$$ = $1;       
+        deleteNode($2);}
     else{
         $$=$2;
+        //TODO FIXME replace NODE_TAIL with $1
+
+        /*
+        struct nodeType* bottom = $2;
+        while(bottom->nodeType!=NODE_TAIL)
+            bottom = bottom->child;
+            
+        bottom->tokenType = $1->tokenType;
+        bottom->nodeType = $1->nodeType;
+        strcpy(bottom->string, $1->string);
+        */
         addChild($$,$1);
     }
         
     
 }
     ;
-tail : LBRAC simple_expression RBRAC tail 
+tail : tail LBRAC simple_expression RBRAC 
 {
-    if($4->nodeType == NODE_TAIL)
-        $4->nodeType = NODE_ARR_REF;
-    $$ = $4;
-    struct typeNode * ref = newNode(NODE_ARR_REF);
-    addChild(ref, $2);
-    addChild($$, ref);
-    deleteNode($1);
-    deleteNode($3);
+    $$ = newNode(NODE_ARR_REF);
+    addChild($$, $1);
+    addChild($$, $3);
+    deleteNode($2);
+    deleteNode($4);
+
 }
     |
 {
