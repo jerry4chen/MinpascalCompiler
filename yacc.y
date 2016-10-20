@@ -328,16 +328,24 @@ variable : IDENTIFIER tail
         $$=$2;
         //TODO FIXME replace NODE_TAIL with $1
 
-        /*
-        struct nodeType* bottom = $2;
-        while(bottom->nodeType!=NODE_TAIL)
-            bottom = bottom->child;
-            
-        bottom->tokenType = $1->tokenType;
-        bottom->nodeType = $1->nodeType;
-        strcpy(bottom->string, $1->string);
-        */
-        addChild($$,$1);
+        
+        struct nodeType* treetail = $2->child;
+        struct nodeType* rhs;
+
+        while(treetail->nodeType!=NODE_TAIL)
+           //while(idNode != idList->child);
+            treetail = treetail->child;
+        printf("treetail.\n");
+        
+        
+        treetail->tokenType = $1->tokenType;
+        treetail->nodeType = $1->nodeType;
+        treetail->string = (char*)malloc(strlen($1->string)+1);
+        strcpy(treetail->string, $1->string);
+
+        //strcpy(treetail->string, $1->string);
+        
+        //addChild($$,$1);
     }
         
     
