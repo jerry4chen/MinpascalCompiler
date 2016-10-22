@@ -52,6 +52,7 @@ void semanticCheck(struct nodeType *node) {
             enum StdType valueType;
             
             do{
+              
               switch(typeNode->nodeType){
               case NODE_TYPE_INT:
                 valueType = TypeInt;
@@ -67,10 +68,13 @@ void semanticCheck(struct nodeType *node) {
               struct nodeType *idList = nthChild(1, typeNode);
               struct nodeType *idNode = idList->child;
               if(valueType == TypeArray){
+                // TODO array . extract the start end from node.
                 while(idList->nodeType != NODE_LIST){
                   idList = idList->rsibling;
                 }
                 idNode = idList->child;
+
+                
               }
 
               do {
@@ -86,6 +90,10 @@ void semanticCheck(struct nodeType *node) {
 
         /* This case is simplified, actually you should check
            the symbol is a variable or a function with no parameter */
+        case NODE_ARR_REF:
+          printf("ARR_REF: lefttype:%d, righttype:%d\n",
+                  node->child->nodeType, node->child->rsibling->nodeType);
+          return;
         case NODE_VAR_OR_PROC: 
         case NODE_SYM_REF: {
             struct SymTableEntry *entry = findSymbol(node->string);

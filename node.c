@@ -120,6 +120,8 @@ void printTree(struct nodeType *node, int ident) {
             break;
         case NODE_TYPE_ARRAY:
             printf("%sARRAY\n", blank);
+            printf("%s start:%d\n",blank, node->idxstart);
+            printf("%s end:%d\n",blank, node->idxend);
             ident++;
             break;
         case NODE_ARR_REF:

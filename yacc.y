@@ -128,11 +128,16 @@ type : standard_type
 {
         $$ = $1;
         $$->nodeType = NODE_TYPE_ARRAY;
-        $3->nodeType = NODE_INT;
-        $5->nodeType = NODE_INT;
-        addChild($$,$3);
-        addChild($$,$5);
+        $$->idxstart = $3->iValue;
+        $$->idxend = $5-> iValue;
+
+        //$3->nodeType = NODE_INT;
+        //$5->nodeType = NODE_INT;
+        //addChild($$,$3);
+        //addChild($$,$5);
         addChild($$,$8);
+        deleteNode($3);
+        deleteNode($5);
         deleteNode($2);
         deleteNode($4);
         deleteNode($6);
