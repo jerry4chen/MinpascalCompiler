@@ -344,7 +344,7 @@ variable : IDENTIFIER tail
         
         
         treetail->tokenType = $1->tokenType;
-        treetail->nodeType = $1->nodeType;
+        treetail->nodeType = NODE_SYM_REF;
         treetail->string = (char*)malloc(strlen($1->string)+1);
         strcpy(treetail->string, $1->string);
 
@@ -439,8 +439,28 @@ term : factor
 
 factor : IDENTIFIER tail
 {
-    $$ = $1;
-    addChild($$, $2);
+    if($2->nodeType == NODE_TAIL){
+        $$ = $1;       
+        deleteNode($2);}
+    else{
+        $$=$2;
+        //TODO FIXME replace NODE_TAIL with $1
+
+        
+        struct nodeType* treetail = $2->child;
+        struct nodeType* rhs;
+
+        while(treetail->nodeType!=NODE_TAIL)
+           //while(idNode != idList->child);
+            treetail = treetail->child;
+        printf("treetail.\n");
+        
+        
+        treetail->tokenType = $1->tokenType;
+        treetail->nodeType = NODE_SYM_REF;
+        treetail->string = (char*)malloc(strlen($1->string)+1);
+        strcpy(treetail->string, $1->string);
+    }
 }
     | IDENTIFIER LPAREN expression_list RPAREN
 {

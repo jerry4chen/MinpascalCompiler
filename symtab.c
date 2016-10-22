@@ -113,6 +113,7 @@ void semanticCheck(struct nodeType *node) {
         /* This case is simplified, actually you should check
            the symbol is a variable or a function with no parameter */
         case NODE_VAR_OR_PROC: 
+        case NODE_TOKEN:
         case NODE_SYM_REF: {
             struct SymTableEntry *entry = findSymbol(node->string);
             if(entry == 0) {
@@ -122,11 +123,35 @@ void semanticCheck(struct nodeType *node) {
 
             node->entry = entry;
             node->valueType = entry->type;
-
+            node->ref = entry->link;
             return;
         }
         
         case NODE_ARR_REF: {
+
+          struct nodeType *child1 = nthChild(1, node);
+          struct nodeType *child2 = nthChild(2, node);
+
+          semanticCheck(child1);
+          semanticCheck(child2);
+          
+          if(child2->valueType == TypeInt){
+            if(child1->ref->idxstart > child2->iValue ||
+               child1->ref->idxend < child2->iValue){
+              printf("Index out of bound.\n");
+            }
+          }
+          else if(child2->valueType == TypeReal){
+              printf("invalid index type: float\n");
+              exit(0);
+          }
+          //printf("child2->valueType:%d\n",child2->valueType);
+          node->valueType = child1->valueType;
+          node->ref = child1->ref->child;
+          
+          return;
+        }
+/*
             struct nodeType *child1, *child2;
             struct nodeType *arrnode=NULL;
             struct nodeType *arrtype = nthChild(1,node);
@@ -180,6 +205,7 @@ void semanticCheck(struct nodeType *node) {
 
             return;
         }
+*/
         case NODE_TYPE_ARRAY: {
             // won't happen.
             node->valueType = TypeArray;
@@ -205,7 +231,7 @@ void semanticCheck(struct nodeType *node) {
             semanticCheck(child2);
             if(child1->valueType == child2->valueType){
             node->valueType = child1->valueType;
-
+/*
             switch( node->op){
               case OP_ADD:
                 if(node->valueType == TypeInt)
@@ -246,7 +272,12 @@ void semanticCheck(struct nodeType *node) {
               case OP_NOT:
                 break;
             }
+            */
             return; 
+            }
+            else {
+              printf("OP type dismatch\n");
+              exit(0);
             }
             }
         /* You should check the LHS of assign stmt is assignable
