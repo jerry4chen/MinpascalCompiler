@@ -41,11 +41,13 @@ NQUOTE [^']
 
 {I}{N}{T}{E}{G}{E}{R} {
     yylval.node = newTokenNode(INTEGER);
+    yylval.node->valueType = TypeInt;
     token(INTEGER);
 }
 
 {R}{E}{A}{L} {
     yylval.node = newTokenNode(REAL);
+    yylval.node->valueType = TypeReal;
     token(REAL);
 }
 
