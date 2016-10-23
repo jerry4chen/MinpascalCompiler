@@ -41,7 +41,7 @@ struct nodeType* nthChild(int n, struct nodeType *node) {
 }
 
 void semanticCheck(struct nodeType *node) {
-    printf("nodetype:%d\n", node->nodeType);
+ //   printf("nodetype:%d\n", node->nodeType);
     switch(node->nodeType) {
 
         // Declaration part, add to symbol table.
@@ -67,13 +67,15 @@ void semanticCheck(struct nodeType *node) {
               struct nodeType *idList = nthChild(1, typeNode);
               struct nodeType *arrType = typeNode->child;
               struct nodeType *idNode = idList->child;
-              
+              int arraycount=1;
+
               /* For ArrayType Declaration. */
               if(valueType == TypeArray){
 
                 while (arrType->nodeType==NODE_TYPE_ARRAY){
                   // Traverse to find the declared type of arrays.
                   arrType = arrType->child;
+                  arraycount ++;
                 }
                 
                 while(idList->nodeType != NODE_LIST){
@@ -84,8 +86,11 @@ void semanticCheck(struct nodeType *node) {
                 
                 // Add all token under the idList.
                 do {
-                  if(!findSymbol(idNode->string))
+                  if(!findSymbol(idNode->string)){
                     addVariable(idNode->string, arrType->valueType, typeNode);
+                    typeNode->arraydepth = arraycount;
+                    printf("%s: arraydepth: %d\n",idNode->string, arraycount);
+                  }
                   idNode = idNode->rsibling;
                   // FIXME Should happen infinite loop here when only one child. 
                   // BUT it didn't happen ?!
@@ -105,7 +110,13 @@ void semanticCheck(struct nodeType *node) {
             return;
         }
         /** End of Declaration. **/
-        
+        case NODE_PROC_AND_FUNC_DECL:{
+          //TODO
+          switch
+
+          return;
+        }
+          
         /* General cases in the Compoud statement. 
            Focus on array stuff.
         */
@@ -148,7 +159,13 @@ void semanticCheck(struct nodeType *node) {
           //printf("child2->valueType:%d\n",child2->valueType);
           node->valueType = child1->valueType;
           node->ref = child1->ref->child;
-          
+          if(child1->nodeType == NODE_SYM_REF){
+            node->arraydepth = child1->ref->arraydepth-1;
+          }
+          else {
+            node->arraydepth = child1->arraydepth - 1;
+          }
+          //printf("nodedepth:%d\n",node->arraydepth);
           return;
         }
 /*
@@ -300,6 +317,19 @@ void semanticCheck(struct nodeType *node) {
                     }
                 exit(0);
             }
+            if(child1->nodeType==NODE_ARR_REF){
+              if(child2->nodeType==NODE_ARR_REF){
+                if(child2->arraydepth != child1->arraydepth)
+                  printf("array depth dismatch. child1:%d, child2:%d\n",
+                  child1->arraydepth, child2->arraydepth);
+              }
+              else{
+                if(child1->arraydepth != 0)
+                  printf("LHS is array.\n");   
+              }
+              
+            }
+
 
             node->valueType = child1->valueType;
 

@@ -64,10 +64,10 @@ struct nodeType {
     /* Attribute for NODE_TOKEN */
     int tokenType;
 
-    /* Indexes for Array */
+    /* items for Array */
     int idxstart;
     int idxend;
-    int idxref;
+    int arraydepth;
     struct nodeType *ref;
 
     /* Values for general use */

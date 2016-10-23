@@ -7,19 +7,22 @@ var d: array[3..5] of integer;
 var e: array[3..5] of real;
 var x: array[0..3] of array[1..5] of array[1..7] of array [1..9] of integer;
 begin
-//    a:=3;
-//    a:= a+1;
+    a:=3;
+    a:= a+1;
     c:= 1.1;
-    d[a+1] := 33;
-    k[1][2][3+2-1] := 3.14;
-    k[1][2] := k[1][2] +3.14;
+//    d[a+1] := 33; // need to implement constant folding.
+//    k[1][2][3+2-1] := 3.14; // need to implement constant folding.
+    k[1][2][3] := k[1][2][3] +3.14;
     x[1][3][5][7] := 0;
     d := x[1][1][1];
     e := k[1][1][1];
     e := k[1][1];
-//    d := k[1][1][1]; // type dismatch.
     d[3] := 3;
     x[d[3]][3][5][7] := 0;
 
+//    k[1][2] := kk[1][2];
+//    k[1][2] := kk[1];
+//    k[1][2] := 1.1;
+//    d := k[1][1][1]; // type dismatch.
 //    x[k[1][2][4]][3][5][7] := 0 // should report error. 
 end.

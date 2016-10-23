@@ -340,7 +340,7 @@ variable : IDENTIFIER tail
         while(treetail->nodeType!=NODE_TAIL)
            //while(idNode != idList->child);
             treetail = treetail->child;
-        printf("treetail.\n");
+        //printf("treetail.\n");
         
         
         treetail->tokenType = $1->tokenType;
